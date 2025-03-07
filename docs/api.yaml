@@ -1,0 +1,318 @@
+openapi: 3.1.0
+info:
+  title: ToDo API
+  description: タスク管理のための API
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: Next.js API Routes
+
+paths:
+  /tasks:
+    get:
+      summary: すべてのタスクを取得
+      description: 登録されているすべてのタスクを取得します
+      operationId: getAllTasks
+      responses:
+        '200':
+          description: タスクのリストを返します
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 新しいタスクを作成
+      description: 新しいタスクを作成します
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskInput'
+      responses:
+        '201':
+          description: タスクが作成されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: 入力値が不正です
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: タスクの ID
+
+    get:
+      summary: 特定のタスクを取得
+      description: 指定された ID のタスクを取得します
+      operationId: getTaskById
+      responses:
+        '200':
+          description: タスクを返します
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: タスクが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: タスクを更新
+      description: 指定された ID のタスクを更新します
+      operationId: updateTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskInput'
+      responses:
+        '200':
+          description: 更新されたタスクを返します
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: 入力値が不正です
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: タスクが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: タスクを削除
+      description: 指定された ID のタスクを削除します
+      operationId: deleteTask
+      responses:
+        '200':
+          description: タスクが削除されました
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '404':
+          description: タスクが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: タスクの一意識別子
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          description: タスクのタイトル
+          example: "買い物に行く"
+        details:
+          type: string
+          nullable: true
+          description: タスクの詳細
+          example: "牛乳、卵、パンを買う"
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: タスクの期日
+          example: "2025-12-31T23:59:59Z"
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+          default: pending
+          description: タスクの状態
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          nullable: true
+          description: タスクの優先度
+          example: "medium"
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: タスクに関連するタグ
+          example: ["買い物", "日用品"]
+
+    CreateTaskInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: タスクのタイトル
+          example: "買い物に行く"
+        details:
+          type: string
+          description: タスクの詳細
+          example: "牛乳、卵、パンを買う"
+        dueDate:
+          type: string
+          format: date-time
+          description: タスクの期日
+          example: "2025-12-31T23:59:59Z"
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+          default: pending
+          description: タスクの状態
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          description: タスクの優先度
+          example: "medium"
+        tags:
+          type: array
+          items:
+            type: string
+          description: タスクに関連するタグ
+          example: ["買い物", "日用品"]
+
+    UpdateTaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: タスクのタイトル
+          example: "買い物に行く"
+        details:
+          type: string
+          description: タスクの詳細
+          example: "牛乳、卵、パンを買う"
+        dueDate:
+          type: string
+          format: date-time
+          description: タスクの期日
+          example: "2025-12-31T23:59:59Z"
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+          description: タスクの状態
+          example: "completed"
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          description: タスクの優先度
+          example: "high"
+        tags:
+          type: array
+          items:
+            type: string
+          description: タスクに関連するタグ
+          example: ["買い物", "日用品"]
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: エラーメッセージ
+          example: "タスクが見つかりません"
+
+    ValidationError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: エラーメッセージ
+          example: "入力値が不正です"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: "invalid_type"
+              expected:
+                type: string
+                example: "string"
+              received:
+                type: string
+                example: "undefined"
+              path:
+                type: array
+                items:
+                  type: string
+                example: ["title"]
+              message:
+                type: string
+                example: "Required"
