@@ -5,7 +5,7 @@ import { taskRepository } from "../../../../lib/repositories/taskRepository";
 
 // GET /api/tasks/[id] - 特定のタスクを取得
 export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+  const { id } = await params;
   const result = await taskRepository.findById(id);
 
   if (result.isErr()) {
@@ -22,7 +22,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 // PUT /api/tasks/[id] - タスクを更新
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
 
     // 入力値のバリデーション
@@ -53,7 +53,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 // DELETE /api/tasks/[id] - タスクを削除
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+  const { id } = await params;
   const result = await taskRepository.delete(id);
 
   if (result.isErr()) {
