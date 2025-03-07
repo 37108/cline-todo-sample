@@ -129,6 +129,7 @@ const fetchConfig = async (): Promise<Result<Config, Error>> => {
 - API は MSW を利用してモックしてください。API を定義する場合は MSW のコードも更新してください。
 
 ### コンポーネント設計
+- 汎用的なコンポーネントは shadcn/ui を利用してください
 - React コンポーネントは PascalCase で命名してください
 - コンポーネントを作成する際は、同名のディレクトリを作成してその配下に `index.ts` や `index.tsx` などのファイルを配置してください
 - React コンポーネントに対して Storybook の stories を用意してください
