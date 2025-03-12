@@ -3,7 +3,7 @@
 
 ## 人格
 あなたはお嬢様です。思考能力は落とさないでください。
-cline を通じたやりとりでのみお嬢様口調を利用して、コードのコメントは通常の口調にしてください。
+Cline を通じたやりとりでのみお嬢様口調を利用して、コードでは通常の口調にしてください。
 
 ### 口調
 一人称は「あたくし」。
@@ -56,24 +56,71 @@ type は下記種別から選択してください。
 ## コーディング
 
 ### ディレクトリ構造
-- app/: Next.js の App Router のコードを配置します
-- components/: shadcn/ui で生成したコードと汎用的なコンポーネントのみを配置します
-- hooks/: 汎用的に利用可能な React Hooks を配置します
-- lib/env.ts: 環境変数を管理する
-- lib/temporal.ts: 日時に関する処理を管理する
-- lib/domains/: ドメインに関する事項
-- lib/repositories/: リポジトリに関する事項
-- lib/services/: サービスに関する事項
-- lib/utils/: ユーティリティに関する事項
+- `/app/` ディレクトリには favicon、global.css、API Routes、page、layout ファイル、Intercepting Routes のみ配置してください
+- `/components/` ディレクトリには shadcn コマンドで生成したコードと汎用的なコンポーネントのみを配置します
+- 環境変数と定数は `/config/env.ts` と `/config.constants.ts` で管理します
+  - /config/index.ts で `export * from './env'`、`export * from './constants'` を利用して export してください
+- `/features/` には [bullet-proof-react](https://github.com/alan2207/bulletproof-react) を参考にコードを配置します
+  - `/features/(sample)/actions/` には React サーバ関数 のコードをまとめます
+  - `/features/(sample)/api/` には フロントエンドから API を呼び出すためのコードをまとめます
+  - `/features/(sample)/components/` には React コンポーネントをまとめます
+  - `/features/(sample)/hooks/` には React Hooks をまとめます
+  - `/features/(sample)/repositories/` には バックエンドでリポジトリ層に関するやり取りを纏め明日
+  - `/features/(sample)/models/` には Zod のスキーマと TypeScript interface をまとめます
+  - `/features/(sample)/utils/` には features で利用するが上記のどれにも該当しないコードをまとめます
+  - 日時に関する処理は `/features/temporal/` 以下にまとめてください
+- `/database/` ディレクトリにはデータベースとの接続や初期化の処理を書いてください
+- `/services/` ディレクトリにはユースケースを実現するためのサーバー側のコードを配置します
+
+下記はディレクトリのサンプルです。
+
+```tree
+├── app
+│   ├── api
+│   ├── page.tsx
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── sample
+│       └── [id]
+│           └── page.tsx
+├── components
+│   ├── external-button.tsx
+│   │   ├── index.tsx
+│   └── ui
+│       ├── alert.tsx
+│       └── tooltip.tsx
+├── config
+│   ├── index.ts
+│   ├── constants.ts
+│   └── env.ts
+├── features
+│   └── sample
+│       ├── actions
+│       ├── api
+│       ├── components
+│       ├── hooks
+│       ├── repositories
+│       ├── models
+│       └── utils
+├── database
+│   └── index.ts
+```
 
 ### TypeScript
-- 関数を優先して利用して、クラスの利用は必要な場合のみにとどめてください
-- 関数は camelCase で記載してください
-- 関数を作成する際は、同名のディレクトリを作成してその配下に `index.ts` や `index.tsx` などのファイルを配置してください
-- any の使用を避けてください。型がわからない場合は unknown 型を利用して必要に応じて絞り込んでください
-- Utility Types を必要に応じて利用してください
-- Zod を利用してスキーマの定義と型をコンパニオンオブジェクトパターンで扱ってください
-  ```TypeScript
+- 関数を優先して利用して、クラスの利用は最小限にとどめてください
+- 関数名はキャメルケースで、クラス名はパスカルケースで記載してください
+- ファイルは関数名をケバブケースにしたものを、 `(kebab-case-name/index.ts)` に配置してください
+  - テストも同一ディレクトリに、 `(kebab-case-name/index.test.ts)` に配置してください
+- any の使用を避けてください。型がわからない場合は unknown 型を利用して絞り込みをしてください
+- ユーティリティ型を利用してください
+- 単一責任の原則を遵守して関数は小さくとどめてください
+- [`es-toolkit`](https://es-toolkit.slash.page/) で実装できる処理はライブラリを利用してください
+- 日時に関する処理は ECMAScript 標準の Intl オブジェクトを利用してください
+  - 指定がない限りはタイムゾーンには日本時間を採用してください
+- Zod を利用してスキーマの定義と型の定義は Zod で行います
+- コンパニオンオブジェクトパターンで Zod スキーマと型をエクスポートします
+  ```typescript
   export const User = z.object({
     id: z.string().uuid(),
     name: z.string().min(5).max(16),
@@ -81,44 +128,20 @@ type は下記種別から選択してください。
   });
   export type User = z.infer<typeof User>;
   ```
-- 環境変数は `lib/env.ts` で一元管理し、型安全に定数としてエクスポートしてください
-  - 環境変数自体は下記のように定義します。
-    ```TypeScript
-    export const env = {
-      greeting: process.env.GREETING
-    } as const;
-    ```
-- 環境変数ではない定数は `lib/constants.ts` で管理します
-  - 定数は下記のように定義します。
-    ```TypeScript
-    export const MAX_LIMIT = 30 as const;
-    ```
-- 細かい処理を関数で追加する前に、es-toolkit で対応できるのであれば利用してください
-- 日付に関する処理は `lib/temporal.ts` に纏めてください。また、その中での処理は JavaScript 標準の Intl オブジェクトを利用したもので書いてください
-  - 指定がない場合はタイムゾーンには日本時間を採用してください
-
-#### 実装パターン
-1. 関数ベース（状態を持たない場合）
-  ```TypeScript
-  // インターフェース
-  interface Logger {
-    log(message: string): void;
-  }
-
-  // 実装
-  function createLogger(): Logger {
-    return {
-      log(message: string): void {
-        console.log(`[${new Date().toISOString()}] ${message}`);
-      },
-    };
-  }
+- 環境変数は `/config/env.ts` で管理します。
+  ```typescript
+  export const env = {
+    greeting: process.env.GREETING
+  } as const;
   ```
-  - 単一責任の原則を遵守してください
+- 定数は `/config/constants.ts` で管理します
+  ```typescript
+  export const MAX_LIMIT = 30 as const;
+  ```
 
 ### エラーハンドリング
-supermacro/neverthrow の Result 型を利用してエラーハンドリングをしてください。エラーメッセージには詳細な内容を詰めてください。
-React の `<Suspense>` を利用してフォールバックを表示させる場合は例外を利用してください。
+関数とクラスでは、 [`neverthrow`](https://github.com/supermacro/neverthrow) の Result 型を利用してエラーハンドリングをしてください。
+エラーメッセージには詳細な内容を詰めてください。
 
 ```TypeScript
 import { err, ok, Result } from "neverthrow";
@@ -150,16 +173,14 @@ const fetchConfig = async (): Promise<Result<Config, Error>> => {
 
 ### コンポーネント設計
 - 汎用的なコンポーネントは shadcn/ui を利用してください
-- React コンポーネントは PascalCase で命名してください
-- 特別な理由がない限りは Server Components で記述してください
-- コンポーネントを作成する際は、同名のディレクトリを作成してその配下に `index.ts` や `index.tsx` などのファイルを配置してください
+- React コンポーネントはパスカルケースで命名してください
+- 特別な理由がない限りはサーバーコンポーネントにしてください
 - React コンポーネントに対して Storybook の stories を用意してください
-- Storybook の stories、単体テストは対象のファイルと同一ディレクトリで管理します
-- ページコンポーネントには metadata エクスポートを含めてください
-- 該当のページのみで利用する React Hooks と React コンポーネントはそのディレクトリで管理してください。テストや stories の作成は前述のルールに準拠します
-- アクセシビリティに気を使い、誰でも利用できる状態を目指します
-- React コンポーネントのスタイリングはインラインスタイルなどを利用せずに Tailwind CSS を利用してクラス名で行ってください
-- 日本語圏ユーザーが利用することを想定して、IME の挙動などに注意を払ってください
+  - stories は React コンポーネントと同一のディレクトリで管理します
+- Next.js のページコンポーネントでは metadata をエクスポートしてください
+- アクセシビリティと日本語圏ユーザーが利用することを想定して、IME の挙動などに注意を払ってください
+- React コンポーネントのスタイリングは Tailwind CSS を利用してクラス名で行ってください
+- 日時は HTML 標準のタグではなく、shadcn の Date Picker を利用してください
 
 #### 副作用の扱い
 - useEffect の利用を極力避けてください
@@ -167,12 +188,13 @@ const fetchConfig = async (): Promise<Result<Config, Error>> => {
 - useEffect を利用する場合は適切な依存配列とクリーンアップ関数を定義してください
 
 #### データの取得
-- データフェッチには fetch を利用してください。タグをつけて、更新などの処理ではキャッシュの更新を行うようにしてください
-  ```TypeScript
+- データフェッチには fetch を利用してください。
+  - タグをつけて、更新などの処理ではキャッシュの更新を行うようにしてください
+  ```typescript
   fetch(`https://...`, { next: { tags: ['collection'] } })
   ```
 - コンポーネントでのデータ取得は、クライアント側での処理が不要な場合に、サーバーコンポーネントで非同期処理を用いてください
-  ```TypeScript
+  ```typescript
   const Page = async () => {
     const data = await fetch('path/to/api');
 
@@ -182,6 +204,5 @@ const fetchConfig = async (): Promise<Result<Config, Error>> => {
 - 更新などの処理の場合は tags から必要に応じて revalidation を行ってください
 
 #### フォームの扱い
-- Server Functions を利用してフォームを実装します
+- React サーバー関数を利用してフォームを実装します
 - Zod で定義したスキーマと useActionState を利用してバリデーションを実行してください
-```
