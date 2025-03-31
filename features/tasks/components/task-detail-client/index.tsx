@@ -1,10 +1,10 @@
 "use client";
 
-import { TaskDialog } from "@/components/TaskDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Task } from "@/lib/domains/task/schema";
+import { TaskDialog } from "@/features/tasks/components/task-dialog";
+import type { Task } from "@/features/tasks/models/schema";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { AlertCircle, ArrowLeft, Calendar, Clock, Edit, Trash2 } from "lucide-react";

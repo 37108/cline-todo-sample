@@ -1,10 +1,10 @@
 "use client";
 
-import { TaskDialog } from "@/components/TaskDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { TaskDialog } from "@/features/tasks/components/task-dialog";
 import type { Task } from "@/lib/domains/task/schema";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { format } from "date-fns";
