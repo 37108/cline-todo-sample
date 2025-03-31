@@ -1,4 +1,4 @@
-import { TaskBoard } from "@/components/TaskBoard";
+import { TaskBoard } from "@/features/tasks/components/task-board";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

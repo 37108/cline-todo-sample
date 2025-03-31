@@ -4,7 +4,7 @@ import { TaskDialog } from "@/components/TaskDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Task } from "@/lib/domains/task/schema";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { format } from "date-fns";
@@ -157,6 +157,10 @@ export default function TaskDetailModal({ params }: { params: Promise<{ id: stri
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>タスク詳細</DialogTitle>
+        </DialogHeader>
+
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
